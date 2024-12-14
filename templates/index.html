@@ -9,81 +9,71 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        textarea {
-            width: 100%;
-            height: 100px;
-        }
-        input, button, select {
+
+        button {
             margin: 10px 0;
         }
+
         .response {
             margin-top: 20px;
             padding: 10px;
             border: 1px solid #ccc;
             background-color: #f9f9f9;
         }
+
+        pre {
+            white-space: pre-wrap; /* CSS3 */
+            white-space: -moz-pre-wrap; /* Firefox */
+            white-space: -o-pre-wrap; /* Opera 7 */
+            word-wrap: break-word; /* IE */
+        }
     </style>
 </head>
 <body>
-    <h1>Request Tester</h1>
-    <form id="requestForm">
-        <label for="method">Request Method:</label><br>
-        <select id="method">
-            <option value="POST">POST</option>
-            <option value="GET">GET</option>
-        </select><br>
+<h1>Request Tester</h1>
 
-        <label for="url">Request URL:</label><br>
-        <input type="text" id="url" placeholder="Enter URL" required><br>
+<button id="pingHello">Ping Hello</button>
+<button id="ping">Ping</button>
+<button id="getRecipes">Get Recipes</button>
 
-        <label for="headers">Headers (JSON format):</label><br>
-        <textarea id="headers" placeholder='{"Content-Type": "application/json"}'></textarea><br>
+<div class="response">
+    <h2>Response:</h2>
+    <pre id="responseOutput"></pre>
+</div>
 
-        <label for="body">Body (JSON format, for POST):</label><br>
-        <textarea id="body" placeholder='{"key": "value"}'></textarea><br>
-
-        <button type="submit">Send Request</button>
-    </form>
-
-    <div class="response">
-        <h2>Response:</h2>
-        <pre id="responseOutput"></pre>
-    </div>
-
-    <script>
-        document.getElementById('requestForm').addEventListener('submit', async function(event) {
-            event.preventDefault(); // Prevent form submission
-            const method = document.getElementById('method').value;
-            const url = `${window.location.origin}/${document.getElementById('url').value}`;
-            const headersInput = document.getElementById('headers').value;
-            const bodyInput = document.getElementById('body').value;
-
-            let headers, body;
-            try {
-                headers = JSON.parse(headersInput || '{}');
-                body = method === 'POST' ? JSON.parse(bodyInput || '{}') : null;
-            } catch (error) {
-                document.getElementById('responseOutput').textContent = "Invalid JSON in Headers or Body.";
-                return;
-            }
-
-            try {
-                const options = {
-                    method,
-                    headers,
-                };
-
-                if (method === 'POST' && body) {
-                    options.body = JSON.stringify(body);
+<script>
+    async function sendRequest(url, method = 'GET', body = null) {
+        try {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json'
                 }
+            };
 
-                const response = await fetch(url, options);
-                const responseText = await response.text();
-                document.getElementById('responseOutput').textContent = responseText;
-            } catch (error) {
-                document.getElementById('responseOutput').textContent = `Error: ${error.message}`;
+            if (body) {
+                options.body = JSON.stringify(body);
             }
-        });
-    </script>
+
+            const response = await fetch(url, options);
+            const responseText = await response.text();
+            document.getElementById('responseOutput').textContent = responseText;
+        } catch (error) {
+            document.getElementById('responseOutput').textContent = `Error: ${error.message}`;
+        }
+    }
+
+    document.getElementById('pingHello').addEventListener('click', () => {
+        sendRequest(`${window.location.origin}/hello`);
+    });
+
+    document.getElementById('ping').addEventListener('click', () => {
+        sendRequest(`${window.location.origin}/ping`);
+    });
+
+    document.getElementById('getRecipes').addEventListener('click', () => {
+        sendRequest(`${window.location.origin}/recipes`);
+    });
+</script>
 </body>
 </html>
