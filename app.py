@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, Response
 import db as Client
 from bson import json_util
 
@@ -25,19 +25,36 @@ def ping():
 @app.route('/recipes', methods=['GET'])
 def get_recipes():
     response = db.recipes.find()
-    return json_util.dumps(response)
+    return Response(json_util.dumps(response), content_type='application/json')
+
 
 @app.route('/recipes/find', methods=['GET'])
 def find_recipes():
     ingredients = request.args.get('ingredients').split(',')
-    ingredients = [{'$regex': ingredient, '$options': 'i'} for ingredient in ingredients]
-    query = {'ingridients': {'$all': ingredients}}
-    response = db.recipes.find(query)
-    result = []
-    for recipe in response:
-        result.append(recipe)
-    return json_util.dumps(result)
+    pipeline = [
+        {
+            '$match': {
+                '$and': [
+                    {'ingridients': {'$regex': ingredient, '$options': 'i'}} for ingredient in ingredients
+                ]
+            }
+        },
+        {
+            '$addFields': {
+                'calories_int': {'$toInt': '$nutritions.calories'}
+            }
+        },
+        {
+            '$sort': {
+                'calories_int': -1
+            }
+        }
+    ]
 
+    response = db.recipes.aggregate(pipeline)
+    result = [recipe for recipe in response]
+
+    return Response(json_util.dumps(result), content_type='application/json')
 
 if __name__ == '__main__':
     app.run(port=5000)
