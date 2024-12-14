@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+        }
+        input, button, select {
+            margin: 10px 0;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Request Tester</h1>
+    <form id="requestForm">
+        <label for="method">Request Method:</label><br>
+        <select id="method">
+            <option value="POST">POST</option>
+            <option value="GET">GET</option>
+        </select><br>
+
+        <label for="url">Request URL:</label><br>
+        <input type="text" id="url" placeholder="Enter URL" required><br>
+
+        <label for="headers">Headers (JSON format):</label><br>
+        <textarea id="headers" placeholder='{"Content-Type": "application/json"}'></textarea><br>
+
+        <label for="body">Body (JSON format, for POST):</label><br>
+        <textarea id="body" placeholder='{"key": "value"}'></textarea><br>
+
+        <button type="submit">Send Request</button>
+    </form>
+
+    <div class="response">
+        <h2>Response:</h2>
+        <pre id="responseOutput"></pre>
+    </div>
+
+    <script>
+        document.getElementById('requestForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent form submission
+            const method = document.getElementById('method').value;
+            const url = `${window.location.origin}/${document.getElementById('url').value}`;
+            const headersInput = document.getElementById('headers').value;
+            const bodyInput = document.getElementById('body').value;
+
+            let headers, body;
+            try {
+                headers = JSON.parse(headersInput || '{}');
+                body = method === 'POST' ? JSON.parse(bodyInput || '{}') : null;
+            } catch (error) {
+                document.getElementById('responseOutput').textContent = "Invalid JSON in Headers or Body.";
+                return;
+            }
+
+            try {
+                const options = {
+                    method,
+                    headers,
+                };
+
+                if (method === 'POST' && body) {
+                    options.body = JSON.stringify(body);
+                }
+
+                const response = await fetch(url, options);
+                const responseText = await response.text();
+                document.getElementById('responseOutput').textContent = responseText;
+            } catch (error) {
+                document.getElementById('responseOutput').textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
