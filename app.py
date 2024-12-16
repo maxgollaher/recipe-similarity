@@ -30,31 +30,44 @@ def get_recipes():
 
 @app.route('/recipes/find', methods=['GET'])
 def find_recipes():
-    ingredients = request.args.get('ingredients').split(',')
-    pipeline = [
-        {
-            '$match': {
-                '$and': [
-                    {'ingridients': {'$regex': ingredient, '$options': 'i'}} for ingredient in ingredients
-                ]
-            }
-        },
-        {
-            '$addFields': {
-                'calories_int': {'$toInt': '$nutritions.calories'}
-            }
-        },
-        {
-            '$sort': {
-                'calories_int': -1
-            }
-        }
-    ]
+    ingredients = request.args.get('ingredients')
 
-    response = db.recipes.aggregate(pipeline)
-    result = [recipe for recipe in response]
+    if ingredients:
+        ingredients = ingredients.split(',')
+        pipeline = [
+            {
+                '$match': {
+                    '$and': [
+                        {'ingridients': {'$regex': ingredient, '$options': 'i'}} for ingredient in ingredients
+                    ]
+                }
+            },
+            {
+                '$addFields': {
+                    'calories_int': {'$toInt': '$nutritions.calories'}
+                }
+            },
+            {
+                '$sort': {
+                    'calories_int': -1
+                }
+            },            {
+                '$project': {
+                    '_id': 0,  # Exclude the _id field
+                    'title': '$basic_info.title',
+                    'prep_data': 1,
+                    'ingridients': 1,
+                    'nutritions': 1
+                }
+            }
+        ]
 
-    return Response(json_util.dumps(result), content_type='application/json')
+        response = db.recipes.aggregate(pipeline)
+        result = [recipe for recipe in response]
+
+        return Response(json_util.dumps(result), content_type='application/json')
+    return render_template('find.html')
+
 
 if __name__ == '__main__':
     app.run(port=5000)
