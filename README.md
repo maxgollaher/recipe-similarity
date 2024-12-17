@@ -19,11 +19,8 @@ students are often on a budget and need to maximize their energy intake.
 
 ### Fall-over Strategy
 
-MongoDB can be set up to have a replica set, which is a group of MongoDB servers that maintain the same data set,
+Our MongoDB is set up to have a replica set, which is a group of MongoDB servers that maintain the same data set,
 providing redundancy and increasing data availability. With this, if one server were to fail, the other servers would
 still be able to provide the data that we need for our application, and when the failed server is back up, it will
 sync with the other servers to ensure that the data is consistent. With multiple replica sets, we can ensure that our
 data will always be available.
-
-### Performance characteristics
-
