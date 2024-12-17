@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, jsonify, Response
-import db as mongoDb
 from bson import json_util
+
+import db as mongoDb
 
 app = Flask(__name__)
 db = mongoDb.client.get_database('recipes')
@@ -24,8 +25,9 @@ def ping():
 
 @app.route('/recipes', methods=['GET'])
 def get_recipes():
-    response = db.recipes.find()
-    return Response(json_util.dumps(response), content_type='application/json')
+    response = db.recipes.aggregate([{'$sample': {'size': 1}}])
+    recipe = next(response, None)
+    return Response(json_util.dumps(recipe, indent=4), content_type='application/json')
 
 
 @app.route('/recipes/find', methods=['GET'])
