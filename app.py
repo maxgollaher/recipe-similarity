@@ -1,10 +1,10 @@
 from flask import Flask, request, render_template, jsonify, Response
-import db as Client
+import db as mongoDb
 from bson import json_util
 
-
 app = Flask(__name__)
-db = Client.client.get_database('recipes')
+db = mongoDb.client.get_database('recipes')
+
 
 @app.route('/')
 def index():
@@ -18,7 +18,7 @@ def hello():
 
 @app.route('/ping', methods=['GET'])
 def ping():
-    response = Client.ping()
+    response = mongoDb.ping()
     return jsonify({'message': response})
 
 
@@ -44,14 +44,16 @@ def find_recipes():
             },
             {
                 '$addFields': {
-                    'calories_int': {'$toInt': '$nutritions.calories'}
+                    'calories_int': {'$toInt': '$nutritions.calories'},
+                    'ingredients_count': {'$size': '$ingridients'}
                 }
             },
             {
                 '$sort': {
+                    'ingredients_count': 1,
                     'calories_int': -1
                 }
-            },            {
+            }, {
                 '$project': {
                     '_id': 0,  # Exclude the _id field
                     'title': '$basic_info.title',
