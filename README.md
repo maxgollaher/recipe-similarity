@@ -8,6 +8,7 @@ specifically, recipes that use the fewest number of ingredients and the highest 
 students are often on a budget and need to maximize their energy intake.
 
 ### Diagram
+<img src="final_project_diagram.png" alt="Mock" width="300">
 
 ### Key Learnings
 
