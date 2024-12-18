@@ -57,7 +57,7 @@ def find_recipes():
                 }
             }, {
                 '$project': {
-                    '_id': 0,  # Exclude the _id field
+                    '_id': 0,
                     'title': '$basic_info.title',
                     'prep_data': 1,
                     'ingridients': 1,
