@@ -2,8 +2,7 @@
 
 ### Summary
 
-This system recommends the top 5 recipes that best match the ingredients chosen by the user. The user must input at
-least 3 ingredients. The system will then suggest recipes, prioritizing those most relevant to college students —
+This system recommends the top recipes that best match the ingredients chosen by the user. The user inputs as many ingredients as they would like. The system will then suggest recipes, prioritizing those most relevant to college students —
 specifically, recipes that use the fewest number of ingredients and the highest number of calories, because college
 students are often on a budget and need to maximize their energy intake.
 
